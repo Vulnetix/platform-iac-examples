@@ -1,0 +1,34 @@
+name: Check
+
+# Push to main only: this repository is public, so no pull_request trigger runs
+# a fork's code on the self-hosted runners.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: [self-hosted, Linux, X64, vulnetix-local]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.11"
+          terraform_wrapper: false
+      - name: Format
+        run: terraform -chdir=terraform fmt -check
+      - name: Validate
+        run: |
+          terraform -chdir=terraform init -backend=false -input=false
+          terraform -chdir=terraform validate
+      - name: One Terraform file and one YAML document per kind
+        run: |
+          tf=$(find terraform -maxdepth 1 -name '*.tf' ! -name versions.tf ! -name provider.tf | wc -l)
+          yml=$(find yaml -maxdepth 1 -name '*.yaml' | wc -l)
+          echo "terraform: $tf, yaml: $yml"
+          test "$tf" -eq "$yml"
