@@ -15,8 +15,8 @@ jobs:
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5.1.0
-      - uses: hashicorp/setup-terraform@v3.1.2
+      - uses: actions/checkout@v7.0.1
+      - uses: hashicorp/setup-terraform@v4.0.1
         with:
           terraform_version: "~1.11"
           terraform_wrapper: false
